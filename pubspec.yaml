@@ -1,0 +1,56 @@
+name: ingresso_app_flutter
+description: "App de vendas de ingressos para eventos, desenvolvido em Flutter."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  dio: ^5.3.2
+
+  cookie_jar: ^4.0.9
+
+  dio_cookie_manager: ^3.4.0
+
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  provider: ^6.1.5
+
+  # API REST
+  http: ^1.5.0
+
+  # Local Storage
+  shared_preferences: ^2.5.3
+
+  # SQLite
+  sqflite: ^2.4.2
+  path: ^1.9.1
+
+  # Maps / Location (funcionalidade extra)
+  geolocator: ^14.0.2
+  flutter_map: ^8.2.2
+  latlong2: ^0.9.1
+
+  # UI Helpers
+  cached_network_image: ^3.4.1
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # App Icon
+  flutter_launcher_icons: ^0.14.4
+
+  # Splash Screen
+  flutter_native_splash: ^2.4.6
+
+flutter:
+  uses-material-design: true
