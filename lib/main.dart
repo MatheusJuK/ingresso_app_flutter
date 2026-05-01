@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/loading.dart';
-import 'screens/login.dart';
+import 'package:ingresso_app_flutter/screens/shows_screen.dart';
+
 
 void main() {
   runApp(const MainApp());
@@ -14,10 +14,9 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       title: 'Ingresso App',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/shows',
       routes: {
-        '/': (context) => const LoadingPage(),
-        '/login': (context) => const LoginPage(),
+        '/shows': (context) => const ShowsScreen(),
       },
     );
   }
