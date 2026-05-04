@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ingresso_app_flutter/utils/constantes.dart';
 import '../models/show.dart';
-import '../utils/constantes.dart';
 import '../utils/helpers.dart';
 import '../screens/detalhes_show_screen.dart';
 
