@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:ingresso_app_flutter/utils/constantes.dart';
 import '../models/show.dart';
-import '../utils/constantes.dart';
 import '../utils/helpers.dart';
 import '../screens/detalhes_show_screen.dart';
- 
+
 class ShowCard extends StatelessWidget {
   final Show show;
- 
+
   const ShowCard({super.key, required this.show});
- 
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -35,17 +34,13 @@ class ShowCard extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Row(
-            children: [
-              _buildColoredSide(),
-              _buildShowInfo(),
-              _buildPrice(),
-            ],
+            children: [_buildColoredSide(), _buildShowInfo(), _buildPrice()],
           ),
         ),
       ),
     );
   }
- 
+
   // lado colorido com ícone do gênero
   Widget _buildColoredSide() {
     return Container(
@@ -55,10 +50,7 @@ class ShowCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            show.cor,
-            show.cor.withOpacity(0.6),
-          ],
+          colors: [show.cor, show.cor.withOpacity(0.6)],
         ),
       ),
       child: Column(
@@ -84,7 +76,7 @@ class ShowCard extends StatelessWidget {
       ),
     );
   }
- 
+
   // nome, local e data
   Widget _buildShowInfo() {
     return Expanded(
@@ -106,17 +98,31 @@ class ShowCard extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                const Icon(Icons.location_on_rounded, color: textSecondary, size: 12),
+                const Icon(
+                  Icons.location_on_rounded,
+                  color: textSecondary,
+                  size: 12,
+                ),
                 const SizedBox(width: 3),
-                Text(show.local, style: const TextStyle(color: textSecondary, fontSize: 12)),
+                Text(
+                  show.local,
+                  style: const TextStyle(color: textSecondary, fontSize: 12),
+                ),
               ],
             ),
             const SizedBox(height: 3),
             Row(
               children: [
-                const Icon(Icons.calendar_today_rounded, color: textSecondary, size: 12),
+                const Icon(
+                  Icons.calendar_today_rounded,
+                  color: textSecondary,
+                  size: 12,
+                ),
                 const SizedBox(width: 3),
-                Text(show.data, style: const TextStyle(color: textSecondary, fontSize: 12)),
+                Text(
+                  show.data,
+                  style: const TextStyle(color: textSecondary, fontSize: 12),
+                ),
               ],
             ),
           ],
@@ -124,7 +130,7 @@ class ShowCard extends StatelessWidget {
       ),
     );
   }
- 
+
   // preço e seta
   Widget _buildPrice() {
     return Padding(
@@ -149,10 +155,13 @@ class ShowCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Icon(Icons.arrow_forward_ios_rounded, color: textSecondary, size: 12),
+          const Icon(
+            Icons.arrow_forward_ios_rounded,
+            color: textSecondary,
+            size: 12,
+          ),
         ],
       ),
     );
   }
 }
- 
