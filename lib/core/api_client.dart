@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final dio = Dio();
 final cookieJar = CookieJar();
@@ -11,6 +12,11 @@ class ApiClient {
   ApiClient._(this.dio);
 
   static Future<ApiClient> create() async {
+    final baseUrl = dotenv.env['API_URL'];
+
+    if (baseUrl == null) {
+      throw Exception('API_URL não definida no .env');
+    }
     final dio = Dio(
       BaseOptions(
         baseUrl: 'https://localhost:3100',

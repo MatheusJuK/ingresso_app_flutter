@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ingresso_app_flutter/screens/shows_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+void main() async {
+  await dotenv.load(fileName: ".env");
 
-void main() {
   runApp(const MainApp());
 }
 
@@ -15,9 +17,7 @@ class MainApp extends StatelessWidget {
       title: 'Ingresso App',
       debugShowCheckedModeBanner: false,
       initialRoute: '/shows',
-      routes: {
-        '/shows': (context) => const ShowsScreen(),
-      },
+      routes: {'/shows': (context) => const ShowsScreen()},
     );
   }
 }

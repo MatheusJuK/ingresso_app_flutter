@@ -39,6 +39,7 @@ dependencies:
   # UI Helpers
   cached_network_image: ^3.4.1
   intl: ^0.20.2
+  flutter_dotenv: ^6.0.1
 
 dev_dependencies:
   flutter_test:
@@ -53,4 +54,6 @@ dev_dependencies:
   flutter_native_splash: ^2.4.6
 
 flutter:
+  assets:
+    - .env
   uses-material-design: true
