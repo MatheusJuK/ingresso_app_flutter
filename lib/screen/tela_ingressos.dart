@@ -10,19 +10,27 @@ class TelaIngressos extends StatelessWidget {
 
   Color _corStatus(String status) {
     switch (status) {
-      case 'VALIDO': return Colors.green;
-      case 'USADO': return Colors.orange;
-      case 'CANCELADO': return Colors.red;
-      default: return Colors.grey;
+      case 'VALIDO':
+        return Colors.green;
+      case 'USADO':
+        return Colors.orange;
+      case 'CANCELADO':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
   String _labelStatus(String status) {
     switch (status) {
-      case 'VALIDO': return 'VÁLIDO';
-      case 'USADO': return 'USADO';
-      case 'CANCELADO': return 'CANCELADO';
-      default: return status;
+      case 'VALIDO':
+        return 'VÁLIDO';
+      case 'USADO':
+        return 'USADO';
+      case 'CANCELADO':
+        return 'CANCELADO';
+      default:
+        return status;
     }
   }
 
@@ -40,35 +48,53 @@ class TelaIngressos extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40, height: 4,
-              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
             const SizedBox(height: 16),
-            Text(evento?.titulo ?? 'Evento',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              evento?.titulo ?? 'Evento',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: _corStatus(ingresso.status).withOpacity(0.15),
+                color: _corStatus(ingresso.status).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Text(_labelStatus(ingresso.status),
-                style: TextStyle(color: _corStatus(ingresso.status), fontWeight: FontWeight.bold)),
+              child: Text(
+                _labelStatus(ingresso.status),
+                style: TextStyle(
+                  color: _corStatus(ingresso.status),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             const SizedBox(height: 24),
             Container(
-              width: 200, height: 200,
+              width: 200,
+              height: 200,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.qr_code_2, size: 180, color: Colors.black87),
+              child: const Icon(
+                Icons.qr_code_2,
+                size: 180,
+                color: Colors.black87,
+              ),
             ),
             const SizedBox(height: 12),
-            Text(ingresso.codigoQr,
+            Text(
+              ingresso.codigoQr,
               style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-              textAlign: TextAlign.center),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 16),
           ],
         ),
@@ -87,13 +113,21 @@ class TelaIngressos extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.confirmation_number_outlined, size: 64, color: Colors.grey[400]),
+                  Icon(
+                    Icons.confirmation_number_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
                   const SizedBox(height: 16),
-                  Text('Nenhum ingresso encontrado',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+                  Text(
+                    'Nenhum ingresso encontrado',
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  ),
                   const SizedBox(height: 8),
-                  Text('Compre ingressos na aba Eventos',
-                    style: TextStyle(fontSize: 13, color: Colors.grey[500])),
+                  Text(
+                    'Compre ingressos na aba Eventos',
+                    style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                  ),
                 ],
               ),
             )
@@ -106,7 +140,9 @@ class TelaIngressos extends StatelessWidget {
 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: InkWell(
                     onTap: () => _abrirQrCode(context, ingresso),
                     borderRadius: BorderRadius.circular(12),
@@ -117,36 +153,57 @@ class TelaIngressos extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Icon(Icons.qr_code, color: Theme.of(context).colorScheme.primary),
+                            child: Icon(
+                              Icons.qr_code,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(evento?.titulo ?? 'Evento não encontrado',
-                                  style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Text(
+                                  evento?.titulo ?? 'Evento não encontrado',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 const SizedBox(height: 4),
-                                Text('Toque para ver QR Code',
-                                  style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                                Text(
+                                  'Toque para ver QR Code',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: _corStatus(ingresso.status).withOpacity(0.15),
+                              color: _corStatus(
+                                ingresso.status,
+                              ).withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Text(_labelStatus(ingresso.status),
+                            child: Text(
+                              _labelStatus(ingresso.status),
                               style: TextStyle(
                                 fontSize: 11,
                                 color: _corStatus(ingresso.status),
                                 fontWeight: FontWeight.bold,
-                              )),
+                              ),
+                            ),
                           ),
                         ],
                       ),
