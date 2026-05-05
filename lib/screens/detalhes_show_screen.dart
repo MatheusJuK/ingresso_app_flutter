@@ -5,31 +5,31 @@ import '../utils/helpers.dart';
 import '../widgets/info_chip.dart';
 import '../widgets/botoes_quantidade.dart';
 import '../widgets/ticket_separador.dart';
- 
+
 class ShowDetailScreen extends StatefulWidget {
   final Show show;
- 
+
   const ShowDetailScreen({super.key, required this.show});
- 
+
   @override
   State<ShowDetailScreen> createState() => _ShowDetailScreenState();
 }
- 
+
 class _ShowDetailScreenState extends State<ShowDetailScreen> {
   int quantidade = 1;
- 
+
   void _aumentar() => setState(() => quantidade++);
- 
+
   void _diminuir() {
     if (quantidade > 1) setState(() => quantidade--);
   }
- 
+
   double get _total => widget.show.preco * quantidade;
- 
+
   @override
   Widget build(BuildContext context) {
     final show = widget.show;
- 
+
     return Scaffold(
       backgroundColor: bgColor,
       body: Column(
@@ -58,7 +58,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
       ),
     );
   }
- 
+
   // cabeçalho com gradiente, ícone e nome do show
   Widget _buildHeader(BuildContext context, Show show) {
     return Stack(
@@ -71,14 +71,14 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                show.cor.withOpacity(0.9),
-                show.cor.withOpacity(0.4),
+                show.cor.withValues(alpha: 0.9),
+                show.cor.withValues(alpha: 0.4),
                 bgColor,
               ],
             ),
           ),
         ),
- 
+
         // padrão de pontinhos decorativo
         Positioned.fill(
           child: Opacity(
@@ -86,7 +86,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
             child: CustomPaint(painter: _DotPatternPainter()),
           ),
         ),
- 
+
         // ícone grande no centro
         Positioned.fill(
           child: Center(
@@ -96,14 +96,14 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
                 const SizedBox(height: 40),
                 Icon(
                   generoIcon(show.genero),
-                  color: Colors.white.withOpacity(0.25),
+                  color: Colors.white.withValues(alpha: 0.25),
                   size: 120,
                 ),
               ],
             ),
           ),
         ),
- 
+
         // botão de voltar
         Positioned(
           top: MediaQuery.of(context).padding.top + 8,
@@ -114,7 +114,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.35),
+                color: Colors.black.withValues(alpha: 0.35),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
@@ -125,7 +125,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
             ),
           ),
         ),
- 
+
         // badge do gênero (canto superior direito)
         Positioned(
           top: MediaQuery.of(context).padding.top + 12,
@@ -133,9 +133,9 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.15)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
             ),
             child: Text(
               show.genero,
@@ -147,7 +147,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
             ),
           ),
         ),
- 
+
         // nome do show na parte de baixo
         Positioned(
           bottom: 16,
@@ -166,7 +166,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
       ],
     );
   }
- 
+
   // chips de local e data
   Widget _buildLocationAndDate(Show show) {
     return Row(
@@ -185,7 +185,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
       ],
     );
   }
- 
+
   // valor do ingresso + controle de quantidade
   Widget _buildPriceAndQty(Show show) {
     return Row(
@@ -212,7 +212,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
                   TextSpan(
                     text: 'R\$ ',
                     style: TextStyle(
-                      color: accentColor.withOpacity(0.8),
+                      color: accentColor.withValues(alpha: 0.8),
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -230,13 +230,13 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
             ),
           ],
         ),
- 
+
         // botões de quantidade
         Container(
           decoration: BoxDecoration(
             color: surfaceColor,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
           ),
           child: Row(
             children: [
@@ -268,7 +268,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
       ],
     );
   }
- 
+
   // caixinha com o total
   Widget _buildTotalBox() {
     return Container(
@@ -276,7 +276,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
       decoration: BoxDecoration(
         color: surfaceColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -307,7 +307,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
       ),
     );
   }
- 
+
   // botão de adicionar ao carrinho
   Widget _buildBuyButton(Show show) {
     return SizedBox(
@@ -341,7 +341,7 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
       ),
     );
   }
- 
+
   void _mostrarConfirmacao(Show show) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -365,22 +365,21 @@ class _ShowDetailScreenState extends State<ShowDetailScreen> {
     );
   }
 }
- 
+
 // painter do padrão de pontinhos do cabeçalho
 class _DotPatternPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..color = Colors.white;
     const spacing = 20.0;
- 
+
     for (double x = 0; x < size.width; x += spacing) {
       for (double y = 0; y < size.height; y += spacing) {
         canvas.drawCircle(Offset(x, y), 1.5, paint);
       }
     }
   }
- 
+
   @override
   bool shouldRepaint(_) => false;
 }
- 

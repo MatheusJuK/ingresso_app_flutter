@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
- 
+
 class QtyButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   final bool enabled;
   final Color? activeColor;
- 
+
   const QtyButton({
     super.key,
     required this.icon,
@@ -13,7 +13,7 @@ class QtyButton extends StatelessWidget {
     required this.enabled,
     this.activeColor,
   });
- 
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -23,7 +23,8 @@ class QtyButton extends StatelessWidget {
         height: 44,
         decoration: BoxDecoration(
           color: enabled
-              ? (activeColor?.withOpacity(0.15) ?? Colors.white.withOpacity(0.05))
+              ? (activeColor?.withValues(alpha: 0.15) ??
+                    Colors.white.withValues(alpha: 0.05))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -31,7 +32,7 @@ class QtyButton extends StatelessWidget {
           icon,
           color: enabled
               ? (activeColor ?? Colors.white)
-              : Colors.white.withOpacity(0.2),
+              : Colors.white.withValues(alpha: 0.2),
           size: 20,
         ),
       ),

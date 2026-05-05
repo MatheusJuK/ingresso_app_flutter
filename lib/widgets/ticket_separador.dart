@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
- 
+
 class TicketDivider extends StatelessWidget {
   final Color color;
- 
+
   const TicketDivider({super.key, required this.color});
- 
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -14,39 +14,40 @@ class TicketDivider extends StatelessWidget {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.5),
+            color: color.withValues(alpha: 0.5),
             shape: BoxShape.circle,
           ),
         ),
- 
+
         // linha tracejada do meio
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
               const dashWidth = 6.0;
               const dashSpace = 4.0;
-              final dashCount = (constraints.maxWidth / (dashWidth + dashSpace)).floor();
- 
+              final dashCount = (constraints.maxWidth / (dashWidth + dashSpace))
+                  .floor();
+
               return Row(
                 children: List.generate(dashCount, (_) {
                   return Container(
                     width: dashWidth,
                     height: 1,
                     margin: const EdgeInsets.only(left: dashSpace),
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                   );
                 }),
               );
             },
           ),
         ),
- 
+
         // bolinha da direita
         Container(
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.5),
+            color: color.withValues(alpha: 0.5),
             shape: BoxShape.circle,
           ),
         ),
@@ -54,4 +55,3 @@ class TicketDivider extends StatelessWidget {
     );
   }
 }
- 

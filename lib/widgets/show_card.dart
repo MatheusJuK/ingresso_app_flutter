@@ -16,8 +16,8 @@ class ShowCard extends StatelessWidget {
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (_, animation, __) => ShowDetailScreen(show: show),
-            transitionsBuilder: (_, animation, __, child) {
+            pageBuilder: (_, animation, _) => ShowDetailScreen(show: show),
+            transitionsBuilder: (_, animation, _, child) {
               return FadeTransition(opacity: animation, child: child);
             },
             transitionDuration: const Duration(milliseconds: 300),
@@ -29,7 +29,7 @@ class ShowCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withOpacity(0.05)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
@@ -50,7 +50,7 @@ class ShowCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [show.cor, show.cor.withOpacity(0.6)],
+          colors: [show.cor, show.cor.withValues(alpha: 0.6)],
         ),
       ),
       child: Column(
@@ -58,7 +58,7 @@ class ShowCard extends StatelessWidget {
         children: [
           Icon(
             generoIcon(show.genero),
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             size: 28,
           ),
           const SizedBox(height: 4),
@@ -66,7 +66,7 @@ class ShowCard extends StatelessWidget {
             show.genero.split('/').first.trim().toUpperCase(),
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               fontSize: 8,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
@@ -141,7 +141,7 @@ class ShowCard extends StatelessWidget {
           Text(
             'R\$',
             style: TextStyle(
-              color: accentColor.withOpacity(0.8),
+              color: accentColor.withValues(alpha: 0.8),
               fontSize: 10,
               fontWeight: FontWeight.w600,
             ),
