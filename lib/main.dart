@@ -1,30 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:ingresso_app_flutter/screens/shows_screen.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:ingresso_app_flutter/core/api_client.dart';
-import 'package:provider/provider.dart';
+import 'package:ingresso_app_flutter/screen/tela_login.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
+ 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
-
-  final apiClient = await ApiClient.create();
-
-  runApp(
-    Provider<ApiClient>.value(value: apiClient, child: const MainApp()),
-  );
+  await initializeDateFormatting('pt_BR', null);
+  runApp(const IngressosApp());
 }
-
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
+ 
+class IngressosApp extends StatelessWidget {
+  const IngressosApp({super.key});
+ 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Ingresso App',
+      title: 'Ingressos App',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/shows',
-      routes: {'/shows': (context) => const ShowsScreen()},
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF6750A4),
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          centerTitle: false,
+          elevation: 0,
+          scrolledUnderElevation: 1,
+          backgroundColor: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF6750A4),
+          ).surface,
+        ),
+        cardTheme: const CardThemeData(elevation: 1),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+      home: const TelaLogin(),
     );
   }
 }
+ 
