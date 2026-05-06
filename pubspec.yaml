@@ -12,6 +12,8 @@ dependencies:
 
   dio: ^5.3.2
 
+  http: ^1.6.0
+
   cookie_jar: ^4.0.9
 
   package_info_plus: ^9.0.1

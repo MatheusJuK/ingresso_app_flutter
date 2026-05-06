@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../data/dados_mock.dart';
 import '../models/usuario.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class TelaCadastro extends StatefulWidget {
   const TelaCadastro({super.key});
@@ -48,7 +50,9 @@ class _TelaCadastroState extends State<TelaCadastro> {
         nome: nome,
         email: email,
         senhaHash: senha,
-        cpf: _controladorCpf.text.trim().isEmpty ? null : _controladorCpf.text.trim(),
+        cpf: _controladorCpf.text.trim().isEmpty
+            ? null
+            : _controladorCpf.text.trim(),
         criadoEm: DateTime.now(),
         atualizadoEm: DateTime.now(),
       );
@@ -67,6 +71,27 @@ class _TelaCadastroState extends State<TelaCadastro> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(mensagem)));
+  }
+
+  Future<void> cadastrarUsuario(Usuario usuario) async {
+    final url = Uri.parse('https://localhost:3100/api/auth/sign-up/email');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'name': usuario.nome,
+        'email': usuario.email,
+        'password': usuario.senhaHash,
+        'cpf': usuario.cpf,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Usuário cadastrado com sucesso!');
+    } else {
+      print('Erro ao cadastrar usuário: ${response.statusCode}');
+    }
   }
 
   @override
@@ -131,20 +156,16 @@ class _TelaCadastroState extends State<TelaCadastro> {
               height: 50,
               child: FilledButton(
                 onPressed: _carregando ? null : _realizarCadastro,
-                child:
-                    _carregando
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                        : const Text(
-                          'Criar Conta',
-                          style: TextStyle(fontSize: 16),
+                child: _carregando
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
                         ),
+                      )
+                    : const Text('Criar Conta', style: TextStyle(fontSize: 16)),
               ),
             ),
             const SizedBox(height: 12),
