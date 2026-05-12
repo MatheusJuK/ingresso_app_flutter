@@ -1,30 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:ingresso_app_flutter/core/api_client.dart';
+import 'package:ingresso_app_flutter/services/auth_service.dart';
 import '../models/item_carrinho.dart';
 import '../models/usuario.dart';
 import 'tela_home.dart';
 import 'tela_carrinho.dart';
 import 'tela_pedidos.dart';
 import 'tela_ingressos.dart';
- 
+
 class TelaPrincipal extends StatefulWidget {
   final Usuario usuarioLogado;
- 
+
   const TelaPrincipal({super.key, required this.usuarioLogado});
- 
+
   @override
   State<TelaPrincipal> createState() => _TelaPrincipalState();
 }
- 
+
 class _TelaPrincipalState extends State<TelaPrincipal> {
   int _abaSelecionada = 0;
   final List<ItemCarrinho> _carrinho = [];
- 
+  late AuthService _authService;
+
+  @override
+  void initState() {
+    super.initState();
+    _inicializarServicos();
+  }
+
+  Future<void> _inicializarServicos() async {
+    final apiClient = await ApiClient.create();
+    _authService = AuthService(apiClient);
+  }
+
   void _adicionarAoCarrinho(ItemCarrinho novoItem) {
     setState(() {
-      final itemExistente = _carrinho.where(
-        (i) => i.tipoIngresso.id == novoItem.tipoIngresso.id,
-      );
- 
+      final itemExistente = _carrinho
+          .where((i) => i.tipoIngresso.id == novoItem.tipoIngresso.id)
+          .toList();
+
       if (itemExistente.isNotEmpty) {
         itemExistente.first.quantidade += novoItem.quantidade;
       } else {
@@ -32,20 +46,34 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       }
     });
   }
- 
+
   void _removerItemDoCarrinho(ItemCarrinho item) {
     setState(() {
       _carrinho.removeWhere((i) => i.tipoIngresso.id == item.tipoIngresso.id);
     });
   }
- 
+
   void _limparCarrinho() {
     setState(() => _carrinho.clear());
   }
- 
+
+  Future<void> _fazerLogout() async {
+    try {
+      await _authService.signOut();
+      if (!mounted) return;
+
+      Navigator.pushReplacementNamed(context, '/');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao fazer logout: $e')));
+    }
+  }
+
   int get _quantidadeItensCarrinho =>
       _carrinho.fold(0, (soma, item) => soma + item.quantidade);
- 
+
   @override
   Widget build(BuildContext context) {
     final telas = [
@@ -63,8 +91,20 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       TelaPedidos(usuarioLogado: widget.usuarioLogado),
       TelaIngressos(usuarioLogado: widget.usuarioLogado),
     ];
- 
+
     return Scaffold(
+      appBar: _abaSelecionada == 0
+          ? AppBar(
+              title: Text('Olá, ${widget.usuarioLogado.nome.split(' ').first}'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  onPressed: _fazerLogout,
+                  tooltip: 'Fazer logout',
+                ),
+              ],
+            )
+          : null,
       body: telas[_abaSelecionada],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _abaSelecionada,

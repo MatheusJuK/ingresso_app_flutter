@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import '../data/dados_mock.dart';
+import 'package:ingresso_app_flutter/core/api_client.dart';
+import 'package:ingresso_app_flutter/models/api_response.dart';
+import 'package:ingresso_app_flutter/services/events_service.dart';
 import '../models/item_carrinho.dart';
 import '../models/usuario.dart';
+import '../models/evento.dart';
 import '../widgets/cartao_evento.dart';
 import 'tela_detalhe_evento.dart';
 
-class TelaHome extends StatelessWidget {
+class TelaHome extends StatefulWidget {
   final Usuario usuarioLogado;
   final List<ItemCarrinho> carrinho;
   final Function(ItemCarrinho) aoAdicionarAoCarrinho;
@@ -18,46 +21,106 @@ class TelaHome extends StatelessWidget {
   });
 
   @override
+  State<TelaHome> createState() => _TelaHomeState();
+}
+
+class _TelaHomeState extends State<TelaHome> {
+  late EventsService _eventsService;
+  Future<List<EventoResponse>>? _eventosFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _inicializarServicos();
+  }
+
+  Future<void> _inicializarServicos() async {
+    final apiClient = await ApiClient.create();
+    _eventsService = EventsService(apiClient);
+
+    setState(() {
+      _eventosFuture = _eventsService.getEvents();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Eventos', style: TextStyle(fontSize: 20)),
-            Text(
-              'Olá, ${usuarioLogado.nome.split(' ').first}!',
-              style: const TextStyle(fontSize: 12),
-            ),
-          ],
+          children: [const Text('Eventos', style: TextStyle(fontSize: 20))],
         ),
       ),
-      body:
-          eventosMock.isEmpty
-              ? const Center(child: Text('Nenhum evento disponível.'))
-              : ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: eventosMock.length,
-                itemBuilder: (context, indice) {
-                  final evento = eventosMock[indice];
-                  return CartaoEvento(
-                    evento: evento,
-                    aoClicar: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => TelaDetalheEvento(
-                                evento: evento,
-                                carrinho: carrinho,
-                                aoAdicionarAoCarrinho: aoAdicionarAoCarrinho,
-                              ),
-                        ),
-                      );
+      body: FutureBuilder<List<EventoResponse>>(
+        future: _eventosFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Erro ao carregar eventos: ${snapshot.error}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _eventosFuture = _eventsService.getEvents();
+                      });
                     },
+                    child: const Text('Tentar novamente'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final eventos = snapshot.data ?? [];
+          if (eventos.isEmpty) {
+            return const Center(child: Text('Nenhum evento disponível.'));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: eventos.length,
+            itemBuilder: (context, indice) {
+              final evento = eventos[indice];
+              // Converte EventoResponse para Evento (modelo local)
+              final eventoLocal = Evento(
+                id: evento.id,
+                titulo: evento.titulo,
+                descricao: evento.descricao,
+                dataInicio: evento.dataInicio,
+                dataFim: evento.dataFim,
+                status: evento.status,
+                local: evento.local,
+                organizadorId: evento.organizador.id,
+              );
+
+              return CartaoEvento(
+                evento: eventoLocal,
+                aoClicar: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => TelaDetalheEvento(
+                        eventoId: evento.id,
+                        evento: eventoLocal,
+                        carrinho: widget.carrinho,
+                        aoAdicionarAoCarrinho: widget.aoAdicionarAoCarrinho,
+                      ),
+                    ),
                   );
                 },
-              ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

@@ -1,67 +1,91 @@
 import 'package:flutter/material.dart';
-import '../data/dados_mock.dart';
-import '../models/usuario.dart';
+import 'package:ingresso_app_flutter/core/api_client.dart';
+import 'package:ingresso_app_flutter/models/usuario.dart';
+import 'package:ingresso_app_flutter/services/auth_service.dart';
 import 'tela_cadastro.dart';
 import 'tela_principal.dart';
- 
+
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
- 
+
   @override
   State<TelaLogin> createState() => _TelaLoginState();
 }
- 
+
 class _TelaLoginState extends State<TelaLogin> {
   final _controladorEmail = TextEditingController();
   final _controladorSenha = TextEditingController();
   bool _carregando = false;
   bool _mostrarSenha = false;
- 
+  late AuthService _authService;
+
+  @override
+  void initState() {
+    super.initState();
+    _inicializarServicos();
+  }
+
+  Future<void> _inicializarServicos() async {
+    final apiClient = await ApiClient.create();
+    _authService = AuthService(apiClient);
+  }
+
   @override
   void dispose() {
     _controladorEmail.dispose();
     _controladorSenha.dispose();
     super.dispose();
   }
- 
-  void _realizarLogin() {
+
+  void _realizarLogin() async {
     final email = _controladorEmail.text.trim();
     final senha = _controladorSenha.text.trim();
- 
+
     if (email.isEmpty || senha.isEmpty) {
       _mostrarMensagem('Preencha todos os campos.');
       return;
     }
- 
+
     setState(() => _carregando = true);
- 
-    Future.delayed(const Duration(milliseconds: 600), () {
-      final usuario = autenticarUsuario(email, senha);
- 
+
+    try {
+      final response = await _authService.signIn(email: email, password: senha);
+
       if (!mounted) return;
       setState(() => _carregando = false);
- 
-      if (usuario != null) {
-        _navegarParaPrincipal(usuario);
-      } else {
-        _mostrarMensagem('Email ou senha incorretos.');
-      }
-    });
+
+      // Converte UserData para Usuario
+      final usuario = Usuario(
+        id: response.user.id,
+        cpf: response.user.cpf,
+        nome: response.user.name,
+        email: response.user.email,
+        senhaHash: '',
+        criadoEm: response.user.createdAt,
+        atualizadoEm: response.user.updatedAt ?? response.user.createdAt,
+      );
+
+      _navegarParaPrincipal(usuario);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _carregando = false);
+      _mostrarMensagem(e.toString());
+    }
   }
- 
+
   void _navegarParaPrincipal(Usuario usuario) {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => TelaPrincipal(usuarioLogado: usuario)),
     );
   }
- 
+
   void _mostrarMensagem(String mensagem) {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(mensagem)));
   }
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,8 +144,8 @@ class _TelaLoginState extends State<TelaLogin> {
                       icon: Icon(
                         _mostrarSenha ? Icons.visibility_off : Icons.visibility,
                       ),
-                      onPressed:
-                          () => setState(() => _mostrarSenha = !_mostrarSenha),
+                      onPressed: () =>
+                          setState(() => _mostrarSenha = !_mostrarSenha),
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -134,20 +158,16 @@ class _TelaLoginState extends State<TelaLogin> {
                   height: 50,
                   child: FilledButton(
                     onPressed: _carregando ? null : _realizarLogin,
-                    child:
-                        _carregando
-                            ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                            : const Text(
-                              'Entrar',
-                              style: TextStyle(fontSize: 16),
+                    child: _carregando
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
                             ),
+                          )
+                        : const Text('Entrar', style: TextStyle(fontSize: 16)),
                   ),
                 ),
                 const SizedBox(height: 16),

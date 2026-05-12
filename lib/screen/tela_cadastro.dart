@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../data/dados_mock.dart';
+import 'package:ingresso_app_flutter/core/api_client.dart';
+import 'package:ingresso_app_flutter/services/auth_service.dart';
 import '../models/usuario.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'tela_principal.dart';
 
 class TelaCadastro extends StatefulWidget {
   const TelaCadastro({super.key});
@@ -17,6 +17,24 @@ class _TelaCadastroState extends State<TelaCadastro> {
   final _controladorSenha = TextEditingController();
   final _controladorCpf = TextEditingController();
   bool _carregando = false;
+  late AuthService _authService;
+
+  @override
+  void initState() {
+    super.initState();
+    _inicializarServicos();
+  }
+
+  Future<void> _inicializarServicos() async {
+    final apiClient = await ApiClient.create();
+    _authService = AuthService(apiClient);
+  }
+
+  void _mostrarMensagem(String mensagem) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensagem)));
+  }
 
   @override
   void dispose() {
@@ -27,70 +45,56 @@ class _TelaCadastroState extends State<TelaCadastro> {
     super.dispose();
   }
 
-  void _realizarCadastro() {
+  void _realizarCadastro() async {
     final nome = _controladorNome.text.trim();
     final email = _controladorEmail.text.trim();
     final senha = _controladorSenha.text.trim();
+    final cpf = _controladorCpf.text.trim();
 
-    if (nome.isEmpty || email.isEmpty || senha.isEmpty) {
-      _mostrarMensagem('Preencha nome, email e senha.');
+    if (nome.isEmpty || email.isEmpty || senha.isEmpty || cpf.isEmpty) {
+      _mostrarMensagem('Preencha todos os campos.');
       return;
     }
 
-    if (emailJaCadastrado(email)) {
-      _mostrarMensagem('Este email já está cadastrado.');
+    if (senha.length < 8) {
+      _mostrarMensagem('A senha deve ter pelo menos 8 caracteres.');
       return;
     }
 
     setState(() => _carregando = true);
 
-    Future.delayed(const Duration(milliseconds: 600), () {
-      final novoUsuario = Usuario(
-        id: 'u${DateTime.now().millisecondsSinceEpoch}',
-        nome: nome,
+    try {
+      // Faz o cadastro e navega direto para a tela principal
+      final signUpResp = await _authService.signUp(
+        cpf: cpf,
+        name: nome,
         email: email,
-        senhaHash: senha,
-        cpf: _controladorCpf.text.trim().isEmpty
-            ? null
-            : _controladorCpf.text.trim(),
-        criadoEm: DateTime.now(),
-        atualizadoEm: DateTime.now(),
+        password: senha,
       );
-
-      cadastrarUsuario(novoUsuario);
 
       if (!mounted) return;
       setState(() => _carregando = false);
 
-      _mostrarMensagem('Cadastro realizado! Faça login.');
-      Navigator.pop(context);
-    });
-  }
+      final usuario = Usuario(
+        id: signUpResp.user.id,
+        nome: signUpResp.user.name,
+        email: signUpResp.user.email,
+        senhaHash: '',
+        cpf: signUpResp.user.cpf,
+        criadoEm: signUpResp.user.createdAt,
+        atualizadoEm: signUpResp.user.updatedAt ?? signUpResp.user.createdAt,
+      );
 
-  void _mostrarMensagem(String mensagem) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(mensagem)));
-  }
-
-  Future<void> cadastrarUsuario(Usuario usuario) async {
-    final url = Uri.parse('https://localhost:3100/api/auth/sign-up/email');
-
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'name': usuario.nome,
-        'email': usuario.email,
-        'password': usuario.senhaHash,
-        'cpf': usuario.cpf,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print('Usuário cadastrado com sucesso!');
-    } else {
-      print('Erro ao cadastrar usuário: ${response.statusCode}');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TelaPrincipal(usuarioLogado: usuario),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _carregando = false);
+      _mostrarMensagem(e.toString());
     }
   }
 

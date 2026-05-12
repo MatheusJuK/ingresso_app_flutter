@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import '../data/dados_mock.dart';
-import '../models/ingresso.dart';
+import 'package:ingresso_app_flutter/core/api_client.dart';
+import 'package:ingresso_app_flutter/services/orders_service.dart';
 import '../models/item_carrinho.dart';
-import '../models/pedido.dart';
 import '../models/usuario.dart';
 
-class TelaCarrinho extends StatelessWidget {
+class TelaCarrinho extends StatefulWidget {
   final Usuario usuarioLogado;
   final List<ItemCarrinho> carrinho;
   final VoidCallback aoLimparCarrinho;
@@ -19,59 +18,82 @@ class TelaCarrinho extends StatelessWidget {
     required this.aoRemoverItem,
   });
 
-  double calcularTotal() {
-    return carrinho.fold(0, (soma, item) => soma + item.subtotal);
+  @override
+  State<TelaCarrinho> createState() => _TelaCarrinhoState();
+}
+
+class _TelaCarrinhoState extends State<TelaCarrinho> {
+  late OrdersService _ordersService;
+  bool _carregando = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _inicializarServicos();
   }
 
-  void _finalizarCompra(BuildContext context) {
-    if (carrinho.isEmpty) return;
+  Future<void> _inicializarServicos() async {
+    final apiClient = await ApiClient.create();
+    _ordersService = OrdersService(apiClient);
+  }
 
-    final novoPedido = Pedido(
-      id: 'p${DateTime.now().millisecondsSinceEpoch}',
-      usuarioId: usuarioLogado.id,
-      status: 'PAGO',
-      valorTotal: calcularTotal(),
-      criadoEm: DateTime.now(),
-    );
-    pedidosMock.add(novoPedido);
+  double calcularTotal() {
+    return widget.carrinho.fold(0, (soma, item) => soma + item.subtotal);
+  }
 
-    for (final item in carrinho) {
-      for (int i = 0; i < item.quantidade; i++) {
-        final novoIngresso = Ingresso(
-          id: 'i${DateTime.now().millisecondsSinceEpoch}$i${item.tipoIngresso.id}',
-          pedidoId: novoPedido.id,
-          eventoId: item.tipoIngresso.eventoId,
-          usuarioId: usuarioLogado.id,
-          codigoQr: 'QR-${novoPedido.id}-${item.tipoIngresso.id}-$i',
-          status: 'VALIDO',
-        );
-        ingressosMock.add(novoIngresso);
-      }
-    }
+  void _finalizarCompra(BuildContext context) async {
+    if (widget.carrinho.isEmpty) return;
 
-    aoLimparCarrinho();
+    setState(() => _carregando = true);
 
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.green),
-            SizedBox(width: 8),
-            Text('Compra Realizada!'),
+    try {
+      // Cria itens do pedido
+      final items = widget.carrinho
+          .map(
+            (item) => OrderItem(
+              tipoIngressoId: item.tipoIngresso.id,
+              quantidade: item.quantidade,
+            ),
+          )
+          .toList();
+
+      // Cria o pedido
+      await _ordersService.createOrder(items: items);
+
+      if (!mounted) return;
+      setState(() => _carregando = false);
+
+      widget.aoLimparCarrinho();
+
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green),
+              SizedBox(width: 8),
+              Text('Pedido Criado!'),
+            ],
+          ),
+          content: const Text(
+            'Seu pedido foi criado com sucesso. Acesse a aba "Pedidos" para visualizar e pagar.',
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
           ],
         ),
-        content: const Text(
-          'Seus ingressos foram gerados com sucesso. Acesse a aba "Ingressos" para visualizá-los.',
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _carregando = false);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao criar pedido: $e')));
+    }
   }
 
   @override
@@ -84,14 +106,14 @@ class TelaCarrinho extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Carrinho'),
         actions: [
-          if (carrinho.isNotEmpty)
+          if (widget.carrinho.isNotEmpty)
             TextButton(
-              onPressed: aoLimparCarrinho,
+              onPressed: widget.aoLimparCarrinho,
               child: const Text('Limpar'),
             ),
         ],
       ),
-      body: carrinho.isEmpty
+      body: widget.carrinho.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -111,9 +133,9 @@ class TelaCarrinho extends StatelessWidget {
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: carrinho.length,
+              itemCount: widget.carrinho.length,
               itemBuilder: (context, indice) {
-                final item = carrinho[indice];
+                final item = widget.carrinho[indice];
                 final subtotalFormatado =
                     'R\$ ${item.subtotal.toStringAsFixed(2).replaceAll('.', ',')}';
 
@@ -152,7 +174,7 @@ class TelaCarrinho extends StatelessWidget {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => aoRemoverItem(item),
+                          onTap: () => widget.aoRemoverItem(item),
                           child: Text(
                             'Remover',
                             style: TextStyle(
@@ -167,7 +189,7 @@ class TelaCarrinho extends StatelessWidget {
                 );
               },
             ),
-      bottomNavigationBar: carrinho.isNotEmpty
+      bottomNavigationBar: widget.carrinho.isNotEmpty
           ? SafeArea(
               child: Container(
                 padding: const EdgeInsets.all(16),
@@ -206,11 +228,22 @@ class TelaCarrinho extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     FilledButton.icon(
-                      onPressed: () => _finalizarCompra(context),
-                      icon: const Icon(Icons.payment),
-                      label: const Text(
-                        'Finalizar Compra',
-                        style: TextStyle(fontSize: 16),
+                      onPressed: _carregando
+                          ? null
+                          : () => _finalizarCompra(context),
+                      icon: _carregando
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.payment),
+                      label: Text(
+                        _carregando ? 'Processando...' : 'Finalizar Compra',
+                        style: const TextStyle(fontSize: 16),
                       ),
                       style: FilledButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),

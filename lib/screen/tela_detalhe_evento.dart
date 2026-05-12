@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../data/dados_mock.dart';
+import 'package:ingresso_app_flutter/core/api_client.dart';
+import 'package:ingresso_app_flutter/models/api_response.dart';
+import 'package:ingresso_app_flutter/services/events_service.dart';
 import '../models/evento.dart';
 import '../models/item_carrinho.dart';
 import '../models/tipo_ingresso.dart';
 import '../widgets/cartao_tipo_ingresso.dart';
 
 class TelaDetalheEvento extends StatefulWidget {
+  final String eventoId;
   final Evento evento;
   final List<ItemCarrinho> carrinho;
   final Function(ItemCarrinho) aoAdicionarAoCarrinho;
 
   const TelaDetalheEvento({
     super.key,
+    required this.eventoId,
     required this.evento,
     required this.carrinho,
     required this.aoAdicionarAoCarrinho,
@@ -24,27 +28,35 @@ class TelaDetalheEvento extends StatefulWidget {
 
 class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
   final Map<String, int> _quantidades = {};
+  late EventsService _eventsService;
+  Future<List<TipoIngressoResponse>>? _ingressosFuture;
 
   @override
   void initState() {
     super.initState();
-    final tipos = buscarTiposIngressoPorEvento(widget.evento.id);
-    for (final tipo in tipos) {
-      _quantidades[tipo.id] = 0;
-    }
+    _inicializarServicos();
   }
 
-  void _aumentarQuantidade(TipoIngresso tipo) {
+  Future<void> _inicializarServicos() async {
+    final apiClient = await ApiClient.create();
+    _eventsService = EventsService(apiClient);
+
     setState(() {
-      _quantidades[tipo.id] = (_quantidades[tipo.id] ?? 0) + 1;
+      _ingressosFuture = _eventsService.getTicketsByEventId(widget.eventoId);
     });
   }
 
-  void _diminuirQuantidade(TipoIngresso tipo) {
+  void _aumentarQuantidade(String tipoId) {
     setState(() {
-      final atual = _quantidades[tipo.id] ?? 0;
+      _quantidades[tipoId] = (_quantidades[tipoId] ?? 0) + 1;
+    });
+  }
+
+  void _diminuirQuantidade(String tipoId) {
+    setState(() {
+      final atual = _quantidades[tipoId] ?? 0;
       if (atual > 0) {
-        _quantidades[tipo.id] = atual - 1;
+        _quantidades[tipoId] = atual - 1;
       }
     });
   }
@@ -54,9 +66,17 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
 
     _quantidades.forEach((tipoId, quantidade) {
       if (quantidade > 0) {
-        final tipo = buscarTiposIngressoPorEvento(
-          widget.evento.id,
-        ).firstWhere((t) => t.id == tipoId);
+        final tipo = TipoIngresso(
+          id: tipoId,
+          nome: 'Ingresso',
+          preco: 0.0,
+          eventoId: widget.eventoId,
+          quantidadeTotal: 0,
+          quantidadeVendida: 0,
+          inicioVenda: DateTime.now(),
+          fimVenda: DateTime.now(),
+          ativo: true,
+        );
 
         widget.aoAdicionarAoCarrinho(
           ItemCarrinho(tipoIngresso: tipo, quantidade: quantidade),
@@ -72,7 +92,9 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('$totalAdicionado ingresso(s) adicionado(s) ao carrinho!'),
+          content: Text(
+            '$totalAdicionado ingresso(s) adicionado(s) ao carrinho!',
+          ),
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
@@ -93,7 +115,6 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
 
   @override
   Widget build(BuildContext context) {
-    final tipos = buscarTiposIngressoPorEvento(widget.evento.id);
     final formatoData = DateFormat('dd/MM/yyyy - HH:mm', 'pt_BR');
 
     return Scaffold(
@@ -155,13 +176,60 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
             ),
           ),
           const SizedBox(height: 8),
-          ...tipos.map(
-            (tipo) => CartaoTipoIngresso(
-              tipoIngresso: tipo,
-              quantidade: _quantidades[tipo.id] ?? 0,
-              aoAumentar: () => _aumentarQuantidade(tipo),
-              aoDiminuir: () => _diminuirQuantidade(tipo),
-            ),
+          FutureBuilder<List<TipoIngressoResponse>>(
+            future: _ingressosFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Center(
+                    child: Text(
+                      'Erro ao carregar ingressos: ${snapshot.error}',
+                    ),
+                  ),
+                );
+              }
+
+              final ingressos = snapshot.data ?? [];
+              if (ingressos.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: Text('Nenhum ingresso disponível.')),
+                );
+              }
+
+              // Inicializa as quantidades se não existem
+              for (final ingresso in ingressos) {
+                _quantidades.putIfAbsent(ingresso.id, () => 0);
+              }
+
+              return Column(
+                children: ingressos
+                    .map(
+                      (ingresso) => CartaoTipoIngresso(
+                        tipoIngresso: TipoIngresso(
+                          id: ingresso.id,
+                          nome: ingresso.nome,
+                          preco: ingresso.preco.toDouble(),
+                          eventoId: ingresso.eventoId,
+                          quantidadeTotal: ingresso.quantidadeTotal,
+                          quantidadeVendida: ingresso.quantidadeVendida,
+                          inicioVenda: ingresso.inicioVenda,
+                          fimVenda: ingresso.fimVenda,
+                          ativo: ingresso.ativo,
+                        ),
+                        quantidade: _quantidades[ingresso.id] ?? 0,
+                        aoAumentar: () => _aumentarQuantidade(ingresso.id),
+                        aoDiminuir: () => _diminuirQuantidade(ingresso.id),
+                      ),
+                    )
+                    .toList(),
+              );
+            },
           ),
           const SizedBox(height: 80),
         ],

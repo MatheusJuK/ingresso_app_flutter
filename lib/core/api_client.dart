@@ -104,6 +104,36 @@ class ApiClient {
     );
   }
 
+  Future<Response<T>> patch<T>(
+    String path, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  }) {
+    return _dio.patch<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<Response<T>> delete<T>(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  }) {
+    return _dio.delete<T>(
+      path,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+    );
+  }
+
   Future<void> clearSession() => _cookieJar.deleteAll();
 
   void close({bool force = false}) => _dio.close(force: force);

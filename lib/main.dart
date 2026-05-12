@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ingresso_app_flutter/screen/tela_login.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
- 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
   await initializeDateFormatting('pt_BR', null);
   runApp(const IngressosApp());
 }
- 
+
 class IngressosApp extends StatelessWidget {
   const IngressosApp({super.key});
- 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -41,4 +42,3 @@ class IngressosApp extends StatelessWidget {
     );
   }
 }
- 
