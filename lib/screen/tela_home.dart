@@ -46,12 +46,6 @@ class _TelaHomeState extends State<TelaHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [const Text('Eventos', style: TextStyle(fontSize: 20))],
-        ),
-      ),
       body: FutureBuilder<List<EventoResponse>>(
         future: _eventosFuture,
         builder: (context, snapshot) {

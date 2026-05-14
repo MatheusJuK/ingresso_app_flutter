@@ -103,16 +103,6 @@ class _TelaCarrinhoState extends State<TelaCarrinho> {
         'R\$ ${total.toStringAsFixed(2).replaceAll('.', ',')}';
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Carrinho'),
-        actions: [
-          if (widget.carrinho.isNotEmpty)
-            TextButton(
-              onPressed: widget.aoLimparCarrinho,
-              child: const Text('Limpar'),
-            ),
-        ],
-      ),
       body: widget.carrinho.isEmpty
           ? Center(
               child: Column(

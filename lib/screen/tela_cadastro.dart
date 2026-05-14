@@ -36,6 +36,13 @@ class _TelaCadastroState extends State<TelaCadastro> {
     ).showSnackBar(SnackBar(content: Text(mensagem)));
   }
 
+  void _navegarParaPrincipal(Usuario usuario) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => TelaPrincipal(usuarioLogado: usuario)),
+    );
+  }
+
   @override
   void dispose() {
     _controladorNome.dispose();
@@ -85,12 +92,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
         atualizadoEm: signUpResp.user.updatedAt ?? signUpResp.user.createdAt,
       );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => TelaPrincipal(usuarioLogado: usuario),
-        ),
-      );
+      _navegarParaPrincipal(usuario);
     } catch (e) {
       if (!mounted) return;
       setState(() => _carregando = false);

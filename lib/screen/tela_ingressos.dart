@@ -107,7 +107,6 @@ class TelaIngressos extends StatelessWidget {
     final ingressos = buscarIngressosPorUsuario(usuarioLogado.id);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Meus Ingressos')),
       body: ingressos.isEmpty
           ? Center(
               child: Column(

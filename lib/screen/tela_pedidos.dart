@@ -91,7 +91,6 @@ class _TelaPedidosState extends State<TelaPedidos> {
     final formatoData = DateFormat('dd/MM/yyyy', 'pt_BR');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Meus Pedidos')),
       body: FutureBuilder<List<PedidoResponse>>(
         future: _pedidosFuture,
         builder: (context, snapshot) {

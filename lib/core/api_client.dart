@@ -19,15 +19,17 @@ class ApiClient {
   }
 
   static Future<ApiClient> _create() async {
-    final rawBaseUrl = (dotenv.maybeGet('API_BASEURL') ?? '').trim();
+    final rawBaseUrl = _readBaseUrlFromEnv();
     final baseUri = Uri.tryParse(rawBaseUrl);
 
     if (rawBaseUrl.isEmpty ||
         baseUri == null ||
         !baseUri.hasScheme ||
         baseUri.host.isEmpty) {
-      throw StateError('API_BASEURL ausente ou inválida no .env');
+      throw StateError('API_BASE_URL ausente ou inválida no .env');
     }
+
+    final effectiveBaseUri = _normalizeBaseUri(baseUri);
 
     final supportDir = await getApplicationSupportDirectory();
     final cookieJar = PersistCookieJar(
@@ -36,7 +38,7 @@ class ApiClient {
 
     final dio = Dio(
       BaseOptions(
-        baseUrl: baseUri.toString(),
+        baseUrl: effectiveBaseUri.toString(),
         connectTimeout: const Duration(seconds: 10),
         sendTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
@@ -72,6 +74,38 @@ class ApiClient {
     );
 
     return ApiClient._(dio, cookieJar);
+  }
+
+  static Uri _normalizeBaseUri(Uri uri) {
+    final isAndroidEmulator =
+        !kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        (uri.host == 'localhost' || uri.host == '127.0.0.1');
+
+    if (!isAndroidEmulator) {
+      return uri;
+    }
+
+    return uri.replace(host: '10.0.2.2');
+  }
+
+  static String _readBaseUrlFromEnv() {
+    final value =
+        dotenv.maybeGet('API_BASE_URL') ?? dotenv.maybeGet('API_BASEURL') ?? '';
+    final trimmed = value.trim();
+
+    if (trimmed.length >= 2) {
+      final startsWithSingleQuote =
+          trimmed.startsWith("'") && trimmed.endsWith("'");
+      final startsWithDoubleQuote =
+          trimmed.startsWith('"') && trimmed.endsWith('"');
+
+      if (startsWithSingleQuote || startsWithDoubleQuote) {
+        return trimmed.substring(1, trimmed.length - 1).trim();
+      }
+    }
+
+    return trimmed;
   }
 
   Future<Response<T>> get<T>(

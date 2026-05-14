@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ingresso_app_flutter/core/api_client.dart';
 import 'package:ingresso_app_flutter/services/auth_service.dart';
+import 'package:ingresso_app_flutter/widgets/app_bar_personalizada.dart';
 import '../models/item_carrinho.dart';
 import '../models/usuario.dart';
 import 'tela_home.dart';
@@ -76,36 +77,50 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
   @override
   Widget build(BuildContext context) {
-    final telas = [
-      TelaHome(
-        usuarioLogado: widget.usuarioLogado,
-        carrinho: _carrinho,
-        aoAdicionarAoCarrinho: _adicionarAoCarrinho,
-      ),
-      TelaCarrinho(
-        usuarioLogado: widget.usuarioLogado,
-        carrinho: _carrinho,
-        aoLimparCarrinho: _limparCarrinho,
-        aoRemoverItem: _removerItemDoCarrinho,
-      ),
-      TelaPedidos(usuarioLogado: widget.usuarioLogado),
-      TelaIngressos(usuarioLogado: widget.usuarioLogado),
-    ];
+    final titulos = ['Eventos', 'Carrinho', 'Pedidos', 'Ingressos'];
+
+    Widget telaAtual;
+    switch (_abaSelecionada) {
+      case 0:
+        telaAtual = TelaHome(
+          usuarioLogado: widget.usuarioLogado,
+          carrinho: _carrinho,
+          aoAdicionarAoCarrinho: _adicionarAoCarrinho,
+        );
+        break;
+      case 1:
+        telaAtual = TelaCarrinho(
+          usuarioLogado: widget.usuarioLogado,
+          carrinho: _carrinho,
+          aoLimparCarrinho: _limparCarrinho,
+          aoRemoverItem: _removerItemDoCarrinho,
+        );
+        break;
+      case 2:
+        telaAtual = TelaPedidos(usuarioLogado: widget.usuarioLogado);
+        break;
+      case 3:
+        telaAtual = TelaIngressos(usuarioLogado: widget.usuarioLogado);
+        break;
+      default:
+        telaAtual = TelaHome(
+          usuarioLogado: widget.usuarioLogado,
+          carrinho: _carrinho,
+          aoAdicionarAoCarrinho: _adicionarAoCarrinho,
+        );
+    }
 
     return Scaffold(
-      appBar: _abaSelecionada == 0
-          ? AppBar(
-              title: Text('Olá, ${widget.usuarioLogado.nome.split(' ').first}'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.logout),
-                  onPressed: _fazerLogout,
-                  tooltip: 'Fazer logout',
-                ),
-              ],
-            )
-          : null,
-      body: telas[_abaSelecionada],
+      appBar: AppBarPersonalizada(
+        titulo: titulos[_abaSelecionada],
+        usuarioLogado: widget.usuarioLogado,
+        aoFazerLogout: _fazerLogout,
+      ),
+      endDrawer: DrawerPerfilUsuario(
+        usuarioLogado: widget.usuarioLogado,
+        aoFazerLogout: _fazerLogout,
+      ),
+      body: telaAtual,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _abaSelecionada,
         onDestinationSelected: (indice) {
