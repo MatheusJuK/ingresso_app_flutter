@@ -102,7 +102,8 @@ O app espera que a API esteja disponivel no endereco definido em `API_BASE_URL`.
 API_BASE_URL=http://10.0.2.2:3100
 ```
 
-Caso rode em dispositivo fisico, use o IP da maquina na rede, por exemplo:
+Não é recomendado o Debug em dispositivo físico devido a inconsistência no acesso a API por motivos que não achamos mesmo pesquisando extensivamente, mas
+caso rode em dispositivo fisico, use o IP da maquina na rede, por exemplo:
 
 ```env
 API_BASE_URL=http://192.168.0.10:3100
