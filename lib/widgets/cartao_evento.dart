@@ -54,9 +54,10 @@ class CartaoEvento extends StatelessWidget {
               _linhaInfo(
                 Icons.calendar_today,
                 formatoData.format(evento.dataInicio),
+                context,
               ),
               const SizedBox(height: 6),
-              _linhaInfo(Icons.location_on, evento.local),
+              _linhaInfo(Icons.location_on, evento.local, context),
             ],
           ),
         ),
@@ -64,15 +65,18 @@ class CartaoEvento extends StatelessWidget {
     );
   }
 
-  Widget _linhaInfo(IconData icone, String texto) {
+  Widget _linhaInfo(IconData icone, String texto, BuildContext context) {
     return Row(
       children: [
-        Icon(icone, size: 14, color: Colors.grey[500]),
+        Icon(icone, size: 14, color: const Color.fromARGB(255, 0, 0, 0)),
         const SizedBox(width: 6),
         Expanded(
           child: Text(
             texto,
-            style: TextStyle(fontSize: 13, color: Colors.grey[300]),
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             overflow: TextOverflow.ellipsis,
           ),
         ),

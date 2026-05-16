@@ -181,10 +181,6 @@ class _TelaLoginState extends State<TelaLogin> {
                   child: const Text('Não tem conta? Cadastre-se'),
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  'Teste: joao@email.com / 123456',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                ),
               ],
             ),
           ),
