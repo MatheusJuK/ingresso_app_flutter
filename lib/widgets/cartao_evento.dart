@@ -39,11 +39,17 @@ class CartaoEvento extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      evento.titulo,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    child: Hero(
+                      tag: 'evento-titulo-${evento.id}',
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Text(
+                          evento.titulo,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -68,7 +74,7 @@ class CartaoEvento extends StatelessWidget {
   Widget _linhaInfo(IconData icone, String texto, BuildContext context) {
     return Row(
       children: [
-        Icon(icone, size: 14, color: const Color.fromARGB(255, 0, 0, 0)),
+        Icon(icone, size: 14, color: Theme.of(context).colorScheme.primary),
         const SizedBox(width: 6),
         Expanded(
           child: Text(

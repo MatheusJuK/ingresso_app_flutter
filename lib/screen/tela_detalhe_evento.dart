@@ -218,20 +218,94 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  widget.evento.titulo,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                Hero(
+                  tag: 'evento-titulo-${widget.evento.id}',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Text(
+                      widget.evento.titulo,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
                   onPressed: _alternarEventoSalvo,
-                  icon: Icon(
-                    _eventoSalvo ? Icons.bookmark : Icons.bookmark_border,
+                  icon: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 180),
+                    transitionBuilder: (child, animation) {
+                      return ScaleTransition(scale: animation, child: child);
+                    },
+                    child: Icon(
+                      _eventoSalvo ? Icons.bookmark : Icons.bookmark_border,
+                      key: ValueKey(_eventoSalvo),
+                    ),
                   ),
-                  label: Text(_eventoSalvo ? 'Evento salvo' : 'Salvar evento'),
+                  label: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 180),
+                    child: Text(
+                      _eventoSalvo ? 'Evento salvo' : 'Salvar evento',
+                      key: ValueKey(_eventoSalvo),
+                    ),
+                  ),
+                ),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 260),
+                  transitionBuilder: (child, animation) {
+                    final offsetAnimation = Tween<Offset>(
+                      begin: const Offset(0, -0.25),
+                      end: Offset.zero,
+                    ).animate(animation);
+
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: offsetAnimation,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: _eventoSalvo
+                      ? Container(
+                          key: const ValueKey('evento-salvo-banner'),
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(top: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Salvo nos Eventos Salvos',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : const SizedBox.shrink(
+                          key: ValueKey('evento-nao-salvo-banner'),
+                        ),
                 ),
                 const SizedBox(height: 12),
                 Row(

@@ -135,13 +135,14 @@ class _TelaIngressosState extends State<TelaIngressos> {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
+                color: Colors.white,
+                border: Border.all(color: const Color(0xFFE0E0E0)),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
                 Icons.qr_code_2,
                 size: 180,
-                color: Colors.black87,
+                color: Colors.black,
               ),
             ),
             const SizedBox(height: 12),

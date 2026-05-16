@@ -19,12 +19,36 @@ class CartaoTipoIngresso extends StatelessWidget {
   Widget build(BuildContext context) {
     final precoFormatado =
         'R\$ ${tipoIngresso.preco.toStringAsFixed(2).replaceAll('.', ',')}';
+    final selecionado = quantidade > 0;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
+    return AnimatedScale(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      scale: selecionado ? 1.015 : 1,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: selecionado
+              ? Theme.of(context).colorScheme.primaryContainer.withAlpha(115)
+              : Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selecionado
+                ? Theme.of(context).colorScheme.primary.withAlpha(140)
+                : Theme.of(context).colorScheme.outlineVariant,
+          ),
+          boxShadow: [
+            if (selecionado)
+              BoxShadow(
+                color: Theme.of(context).colorScheme.primary.withAlpha(30),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+          ],
+        ),
         child: Row(
           children: [
             Expanded(
@@ -51,6 +75,43 @@ class CartaoTipoIngresso extends StatelessWidget {
                     '${tipoIngresso.quantidadeDisponivel} disponíveis',
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 220),
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SizeTransition(
+                          sizeFactor: animation,
+                          axisAlignment: -1,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: selecionado
+                        ? Container(
+                            key: const ValueKey('selecionado'),
+                            margin: const EdgeInsets.only(top: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              'Selecionado',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(
+                            key: ValueKey('nao-selecionado'),
+                          ),
+                  ),
                 ],
               ),
             ),
@@ -61,11 +122,18 @@ class CartaoTipoIngresso extends StatelessWidget {
                   icon: const Icon(Icons.remove_circle_outline),
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                Text(
-                  '$quantidade',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 180),
+                  transitionBuilder: (child, animation) {
+                    return ScaleTransition(scale: animation, child: child);
+                  },
+                  child: Text(
+                    '$quantidade',
+                    key: ValueKey(quantidade),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 IconButton(
