@@ -9,9 +9,21 @@ class EventsService {
   EventsService(this._apiClient);
 
   /// Lista todos os eventos
-  Future<List<EventoResponse>> getEvents() async {
+  Future<List<EventoResponse>> getEvents({
+    int page = 1,
+    int limit = 100,
+  }) async {
     try {
-      final response = await _apiClient.get<List<dynamic>>('/events');
+      final response = await _apiClient.get<List<dynamic>>(
+        '/events',
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          'offset': (page - 1) * limit,
+          'take': limit,
+          'pageSize': limit,
+        },
+      );
 
       if (response.statusCode == 200 && response.data != null) {
         return (response.data as List<dynamic>)
@@ -23,6 +35,30 @@ class EventsService {
     } on DioException catch (e) {
       throw _handleError(e);
     }
+  }
+
+  /// Busca todos os eventos paginando até não existir próxima página.
+  Future<List<EventoResponse>> getAllEvents({int pageSize = 100}) async {
+    final eventos = <EventoResponse>[];
+    final idsVistos = <String>{};
+
+    for (var page = 1; page <= 50; page++) {
+      final pagina = await getEvents(page: page, limit: pageSize);
+
+      var adicionouAlgum = false;
+      for (final evento in pagina) {
+        if (idsVistos.add(evento.id)) {
+          eventos.add(evento);
+          adicionouAlgum = true;
+        }
+      }
+
+      if (pagina.isEmpty || pagina.length < pageSize || !adicionouAlgum) {
+        break;
+      }
+    }
+
+    return eventos;
   }
 
   /// Busca um evento específico pelo ID

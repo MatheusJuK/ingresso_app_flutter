@@ -46,46 +46,6 @@ class _TelaPedidosState extends State<TelaPedidos> {
     }
   }
 
-  Future<void> _pagarPedido(String pedidoId) async {
-    try {
-      await _ordersService.payOrder(pedidoId);
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Pedido pago com sucesso!')));
-
-      setState(() {
-        _pedidosFuture = _ordersService.getOrders();
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao pagar pedido: $e')));
-    }
-  }
-
-  Future<void> _cancelarPedido(String pedidoId) async {
-    try {
-      await _ordersService.cancelOrder(pedidoId);
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pedido cancelado com sucesso!')),
-      );
-
-      setState(() {
-        _pedidosFuture = _ordersService.getOrders();
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao cancelar pedido: $e')));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final formatoData = DateFormat('dd/MM/yyyy', 'pt_BR');
@@ -118,7 +78,10 @@ class _TelaPedidosState extends State<TelaPedidos> {
             );
           }
 
-          final pedidos = snapshot.data ?? [];
+          final pedidos = (snapshot.data ?? [])
+              .where((pedido) => pedido.status == 'PAGO')
+              .toList();
+
           if (pedidos.isEmpty) {
             return Center(
               child: Column(
@@ -131,8 +94,14 @@ class _TelaPedidosState extends State<TelaPedidos> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Nenhum pedido encontrado',
+                    'Nenhum pedido concluído encontrado',
                     style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Finalize o pagamento no carrinho para liberar aqui e na aba Ingressos',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 13, color: Colors.grey[500]),
                   ),
                 ],
               ),
@@ -215,26 +184,11 @@ class _TelaPedidosState extends State<TelaPedidos> {
                           ),
                         ],
                       ),
-                      if (pedido.status == 'PENDENTE') ...[
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => _cancelarPedido(pedido.id),
-                                child: const Text('Cancelar'),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: FilledButton(
-                                onPressed: () => _pagarPedido(pedido.id),
-                                child: const Text('Pagar'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                      const SizedBox(height: 8),
+                      Text(
+                        'Pedido concluído',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
                     ],
                   ),
                 ),

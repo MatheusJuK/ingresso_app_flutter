@@ -1,12 +1,67 @@
 import 'package:flutter/material.dart';
-import '../data/dados_mock.dart';
+import 'package:ingresso_app_flutter/core/api_client.dart';
+import 'package:ingresso_app_flutter/services/events_service.dart';
+import 'package:ingresso_app_flutter/services/tickets_service.dart';
 import '../models/ingresso.dart';
 import '../models/usuario.dart';
+import '../models/api_response.dart';
 
-class TelaIngressos extends StatelessWidget {
+class TelaIngressos extends StatefulWidget {
   final Usuario usuarioLogado;
 
   const TelaIngressos({super.key, required this.usuarioLogado});
+
+  @override
+  State<TelaIngressos> createState() => _TelaIngressosState();
+}
+
+class _TelaIngressosState extends State<TelaIngressos> {
+  late EventsService _eventsService;
+  late TicketsService _ticketsService;
+  final Map<String, EventoResponse?> _eventCache = {};
+  bool _carregando = true;
+  List<Ingresso> _ingressos = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _inicializar();
+  }
+
+  Future<void> _inicializar() async {
+    final apiClient = await ApiClient.create();
+    _eventsService = EventsService(apiClient);
+    _ticketsService = TicketsService(apiClient);
+
+    try {
+      _ingressos = await _ticketsService.getUserTickets(
+        usuarioId: widget.usuarioLogado.id,
+      );
+    } catch (_) {
+      _ingressos = [];
+    }
+
+    final ingressosValidos = _ingressos
+        .where((ingresso) => ingresso.usuarioId == widget.usuarioLogado.id)
+        .toList();
+
+    for (final ingresso in _ingressos) {
+      if (_eventCache.containsKey(ingresso.eventoId)) {
+        continue;
+      }
+
+      try {
+        final evt = await _eventsService.getEventById(ingresso.eventoId);
+        _eventCache[ingresso.eventoId] = evt;
+      } catch (_) {
+        _eventCache[ingresso.eventoId] = null;
+      }
+    }
+
+    _ingressos = ingressosValidos;
+
+    if (mounted) setState(() => _carregando = false);
+  }
 
   Color _corStatus(String status) {
     switch (status) {
@@ -35,7 +90,7 @@ class TelaIngressos extends StatelessWidget {
   }
 
   void _abrirQrCode(BuildContext context, Ingresso ingresso) {
-    final evento = buscarEventoPorId(ingresso.eventoId);
+    final evento = _eventCache[ingresso.eventoId];
 
     showModalBottomSheet(
       context: context,
@@ -104,7 +159,11 @@ class TelaIngressos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ingressos = buscarIngressosPorUsuario(usuarioLogado.id);
+    final ingressos = _ingressos;
+
+    if (_carregando) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       body: ingressos.isEmpty
@@ -135,7 +194,7 @@ class TelaIngressos extends StatelessWidget {
               itemCount: ingressos.length,
               itemBuilder: (context, indice) {
                 final ingresso = ingressos[indice];
-                final evento = buscarEventoPorId(ingresso.eventoId);
+                final evento = _eventCache[ingresso.eventoId];
 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),

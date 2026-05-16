@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/evento.dart';
- 
+
 class CartaoEvento extends StatelessWidget {
   final Evento evento;
   final VoidCallback aoClicar;
- 
-  const CartaoEvento({
-    super.key,
-    required this.evento,
-    required this.aoClicar,
-  });
- 
+
+  const CartaoEvento({super.key, required this.evento, required this.aoClicar});
+
   @override
   Widget build(BuildContext context) {
     final formatoData = DateFormat('dd/MM/yyyy - HH:mm', 'pt_BR');
- 
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
@@ -67,16 +63,16 @@ class CartaoEvento extends StatelessWidget {
       ),
     );
   }
- 
+
   Widget _linhaInfo(IconData icone, String texto) {
     return Row(
       children: [
-        Icon(icone, size: 14, color: Colors.grey[600]),
+        Icon(icone, size: 14, color: Colors.grey[500]),
         const SizedBox(width: 6),
         Expanded(
           child: Text(
             texto,
-            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+            style: TextStyle(fontSize: 13, color: Colors.grey[300]),
             overflow: TextOverflow.ellipsis,
           ),
         ),

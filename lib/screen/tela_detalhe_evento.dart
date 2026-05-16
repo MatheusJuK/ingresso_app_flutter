@@ -30,6 +30,7 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
   final Map<String, int> _quantidades = {};
   late EventsService _eventsService;
   Future<List<TipoIngressoResponse>>? _ingressosFuture;
+  Map<String, TipoIngressoResponse> _tiposMap = {};
 
   @override
   void initState() {
@@ -41,9 +42,19 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
     final apiClient = await ApiClient.create();
     _eventsService = EventsService(apiClient);
 
+    final future = _eventsService.getTicketsByEventId(widget.eventoId);
     setState(() {
-      _ingressosFuture = _eventsService.getTicketsByEventId(widget.eventoId);
+      _ingressosFuture = future;
     });
+
+    try {
+      final lista = await future;
+      setState(() {
+        _tiposMap = {for (var t in lista) t.id: t};
+      });
+    } catch (_) {
+      // ignore errors here; fallback will use defaults
+    }
   }
 
   void _aumentarQuantidade(String tipoId) {
@@ -66,17 +77,30 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
 
     _quantidades.forEach((tipoId, quantidade) {
       if (quantidade > 0) {
-        final tipo = TipoIngresso(
-          id: tipoId,
-          nome: 'Ingresso',
-          preco: 0.0,
-          eventoId: widget.eventoId,
-          quantidadeTotal: 0,
-          quantidadeVendida: 0,
-          inicioVenda: DateTime.now(),
-          fimVenda: DateTime.now(),
-          ativo: true,
-        );
+        final resp = _tiposMap[tipoId];
+        final tipo = resp != null
+            ? TipoIngresso(
+                id: resp.id,
+                nome: resp.nome,
+                preco: resp.preco.toDouble(),
+                eventoId: resp.eventoId,
+                quantidadeTotal: resp.quantidadeTotal,
+                quantidadeVendida: resp.quantidadeVendida,
+                inicioVenda: resp.inicioVenda,
+                fimVenda: resp.fimVenda,
+                ativo: resp.ativo,
+              )
+            : TipoIngresso(
+                id: tipoId,
+                nome: 'Ingresso',
+                preco: 0.0,
+                eventoId: widget.eventoId,
+                quantidadeTotal: 0,
+                quantidadeVendida: 0,
+                inicioVenda: DateTime.now(),
+                fimVenda: DateTime.now(),
+                ativo: true,
+              );
 
         widget.aoAdicionarAoCarrinho(
           ItemCarrinho(tipoIngresso: tipo, quantidade: quantidade),
@@ -162,7 +186,10 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
                 const SizedBox(height: 12),
                 Text(
                   widget.evento.descricao,
-                  style: TextStyle(color: Colors.grey[800], height: 1.5),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    height: 1.5,
+                  ),
                 ),
               ],
             ),

@@ -39,7 +39,7 @@ class _TelaHomeState extends State<TelaHome> {
     _eventsService = EventsService(apiClient);
 
     setState(() {
-      _eventosFuture = _eventsService.getEvents();
+      _eventosFuture = _eventsService.getAllEvents();
     });
   }
 
@@ -63,7 +63,7 @@ class _TelaHomeState extends State<TelaHome> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        _eventosFuture = _eventsService.getEvents();
+                        _eventosFuture = _eventsService.getAllEvents();
                       });
                     },
                     child: const Text('Tentar novamente'),

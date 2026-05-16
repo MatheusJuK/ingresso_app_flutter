@@ -41,13 +41,12 @@ class _TelaCarrinhoState extends State<TelaCarrinho> {
     return widget.carrinho.fold(0, (soma, item) => soma + item.subtotal);
   }
 
-  void _finalizarCompra(BuildContext context) async {
+  Future<void> _criarPedido(BuildContext context) async {
     if (widget.carrinho.isEmpty) return;
 
     setState(() => _carregando = true);
 
     try {
-      // Cria itens do pedido
       final items = widget.carrinho
           .map(
             (item) => OrderItem(
@@ -57,13 +56,14 @@ class _TelaCarrinhoState extends State<TelaCarrinho> {
           )
           .toList();
 
-      // Cria o pedido
-      await _ordersService.createOrder(items: items);
+      final pedido = await _ordersService.createOrder(items: items);
+      await _ordersService.payOrder(pedido.id);
 
       if (!mounted) return;
-      setState(() => _carregando = false);
 
       widget.aoLimparCarrinho();
+
+      setState(() => _carregando = false);
 
       showDialog(
         context: context,
@@ -72,11 +72,11 @@ class _TelaCarrinhoState extends State<TelaCarrinho> {
             children: [
               Icon(Icons.check_circle, color: Colors.green),
               SizedBox(width: 8),
-              Text('Pedido Criado!'),
+              Text('Compra concluída!'),
             ],
           ),
           content: const Text(
-            'Seu pedido foi criado com sucesso. Acesse a aba "Pedidos" para visualizar e pagar.',
+            'Seu pedido foi pago com sucesso. Os ingressos vão aparecer na aba Ingressos e o pedido concluído ficará na aba Pedidos.',
           ),
           actions: [
             FilledButton(
@@ -220,7 +220,7 @@ class _TelaCarrinhoState extends State<TelaCarrinho> {
                     FilledButton.icon(
                       onPressed: _carregando
                           ? null
-                          : () => _finalizarCompra(context),
+                          : () => _criarPedido(context),
                       icon: _carregando
                           ? const SizedBox(
                               width: 20,
@@ -230,9 +230,9 @@ class _TelaCarrinhoState extends State<TelaCarrinho> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Icon(Icons.payment),
+                          : Icon(Icons.payment),
                       label: Text(
-                        _carregando ? 'Processando...' : 'Finalizar Compra',
+                        _carregando ? 'Processando...' : 'Pagar Pedido',
                         style: const TextStyle(fontSize: 16),
                       ),
                       style: FilledButton.styleFrom(
