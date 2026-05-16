@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ingresso_app_flutter/core/api_client.dart';
+import 'package:ingresso_app_flutter/routes/app_routes.dart';
 import 'package:ingresso_app_flutter/services/auth_service.dart';
 import 'package:ingresso_app_flutter/widgets/app_bar_personalizada.dart';
 import '../models/item_carrinho.dart';
@@ -63,7 +64,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       await _authService.signOut();
       if (!mounted) return;
 
-      Navigator.pushReplacementNamed(context, '/');
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ingresso_app_flutter/routes/app_routes.dart';
 import 'package:ingresso_app_flutter/services/app_preferences_service.dart';
 import '../models/usuario.dart';
 
@@ -127,6 +128,20 @@ class DrawerPerfilUsuario extends StatelessWidget {
                       ),
                       onTap: AppPreferencesService.toggleDarkMode,
                     );
+                  },
+                ),
+                const SizedBox(height: 8),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.bookmarks_outlined),
+                  title: const Text('Eventos Salvos'),
+                  subtitle: const Text(
+                    'Editar e excluir salvos locais',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed(AppRoutes.eventosSalvos);
                   },
                 ),
                 const SizedBox(height: 8),

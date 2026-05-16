@@ -8,7 +8,7 @@ class TipoIngresso {
   final DateTime inicioVenda;
   final DateTime fimVenda;
   final bool ativo;
- 
+
   TipoIngresso({
     required this.id,
     required this.eventoId,
@@ -20,6 +20,6 @@ class TipoIngresso {
     required this.fimVenda,
     required this.ativo,
   });
- 
+
   int get quantidadeDisponivel => quantidadeTotal - quantidadeVendida;
 }

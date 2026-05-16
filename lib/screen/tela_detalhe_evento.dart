@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:ingresso_app_flutter/core/api_client.dart';
 import 'package:ingresso_app_flutter/models/api_response.dart';
 import 'package:ingresso_app_flutter/services/events_service.dart';
+import 'package:ingresso_app_flutter/services/eventos_salvos_service.dart';
 import '../models/evento.dart';
 import '../models/item_carrinho.dart';
 import '../models/tipo_ingresso.dart';
@@ -28,14 +29,24 @@ class TelaDetalheEvento extends StatefulWidget {
 
 class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
   final Map<String, int> _quantidades = {};
+  final _controladorObservacao = TextEditingController();
   late EventsService _eventsService;
+  final EventosSalvosService _eventosSalvosService = EventosSalvosService();
   Future<List<TipoIngressoResponse>>? _ingressosFuture;
   Map<String, TipoIngressoResponse> _tiposMap = {};
+  bool _eventoSalvo = false;
 
   @override
   void initState() {
     super.initState();
     _inicializarServicos();
+    _carregarEventoSalvo();
+  }
+
+  @override
+  void dispose() {
+    _controladorObservacao.dispose();
+    super.dispose();
   }
 
   Future<void> _inicializarServicos() async {
@@ -55,6 +66,61 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
     } catch (_) {
       // ignore errors here; fallback will use defaults
     }
+  }
+
+  Future<void> _carregarEventoSalvo() async {
+    final eventoSalvo = await _eventosSalvosService.buscarPorId(
+      widget.evento.id,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _eventoSalvo = eventoSalvo != null;
+      _controladorObservacao.text = eventoSalvo?.observacao ?? '';
+    });
+  }
+
+  Future<void> _alternarEventoSalvo() async {
+    if (_eventoSalvo) {
+      await _eventosSalvosService.remover(widget.evento.id);
+      if (!mounted) return;
+
+      setState(() {
+        _eventoSalvo = false;
+        _controladorObservacao.clear();
+      });
+      _mostrarMensagem('Evento removido dos salvos.');
+      return;
+    }
+
+    await _eventosSalvosService.salvar(widget.evento);
+    if (!mounted) return;
+
+    setState(() => _eventoSalvo = true);
+    _mostrarMensagem('Evento salvo no dispositivo.');
+  }
+
+  Future<void> _atualizarObservacao() async {
+    if (!_eventoSalvo) {
+      await _eventosSalvosService.salvar(widget.evento);
+      if (!mounted) return;
+      setState(() => _eventoSalvo = true);
+    }
+
+    await _eventosSalvosService.atualizarObservacao(
+      widget.evento.id,
+      _controladorObservacao.text.trim(),
+    );
+
+    if (!mounted) return;
+    _mostrarMensagem('Anotação atualizada.');
+  }
+
+  void _mostrarMensagem(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(mensagem), behavior: SnackBarBehavior.floating),
+    );
   }
 
   void _aumentarQuantidade(String tipoId) {
@@ -160,6 +226,14 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
                   ),
                 ),
                 const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: _alternarEventoSalvo,
+                  icon: Icon(
+                    _eventoSalvo ? Icons.bookmark : Icons.bookmark_border,
+                  ),
+                  label: Text(_eventoSalvo ? 'Evento salvo' : 'Salvar evento'),
+                ),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Icon(
@@ -189,6 +263,22 @@ class _TelaDetalheEventoState extends State<TelaDetalheEvento> {
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onSurface,
                     height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _controladorObservacao,
+                  minLines: 1,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Anotação pessoal',
+                    hintText: 'Ex: chamar amigos, comprar VIP...',
+                    prefixIcon: const Icon(Icons.edit_note),
+                    suffixIcon: IconButton(
+                      tooltip: 'Atualizar anotação',
+                      icon: const Icon(Icons.save_outlined),
+                      onPressed: _atualizarObservacao,
+                    ),
                   ),
                 ),
               ],

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ingresso_app_flutter/core/api_client.dart';
 import 'package:ingresso_app_flutter/models/usuario.dart';
+import 'package:ingresso_app_flutter/routes/app_routes.dart';
 import 'package:ingresso_app_flutter/services/auth_service.dart';
-import 'tela_cadastro.dart';
-import 'tela_principal.dart';
 
 class TelaLogin extends StatefulWidget {
   const TelaLogin({super.key});
@@ -74,9 +73,10 @@ class _TelaLoginState extends State<TelaLogin> {
   }
 
   void _navegarParaPrincipal(Usuario usuario) {
-    Navigator.pushReplacement(
+    Navigator.pushReplacementNamed(
       context,
-      MaterialPageRoute(builder: (_) => TelaPrincipal(usuarioLogado: usuario)),
+      AppRoutes.principal,
+      arguments: PrincipalRouteArgs(usuarioLogado: usuario),
     );
   }
 
@@ -173,10 +173,7 @@ class _TelaLoginState extends State<TelaLogin> {
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const TelaCadastro()),
-                    );
+                    Navigator.pushNamed(context, AppRoutes.cadastro);
                   },
                   child: const Text('Não tem conta? Cadastre-se'),
                 ),

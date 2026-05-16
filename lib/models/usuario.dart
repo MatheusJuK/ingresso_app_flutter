@@ -7,7 +7,7 @@ class Usuario {
   final String cargo;
   final DateTime criadoEm;
   final DateTime atualizadoEm;
- 
+
   Usuario({
     required this.id,
     required this.nome,
@@ -19,4 +19,3 @@ class Usuario {
     required this.atualizadoEm,
   });
 }
- 

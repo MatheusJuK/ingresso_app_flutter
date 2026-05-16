@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/tipo_ingresso.dart';
- 
+
 class CartaoTipoIngresso extends StatelessWidget {
   final TipoIngresso tipoIngresso;
   final int quantidade;
   final VoidCallback aoAumentar;
   final VoidCallback aoDiminuir;
- 
+
   const CartaoTipoIngresso({
     super.key,
     required this.tipoIngresso,
@@ -14,12 +14,12 @@ class CartaoTipoIngresso extends StatelessWidget {
     required this.aoAumentar,
     required this.aoDiminuir,
   });
- 
+
   @override
   Widget build(BuildContext context) {
     final precoFormatado =
         'R\$ ${tipoIngresso.preco.toStringAsFixed(2).replaceAll('.', ',')}';
- 
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -69,10 +69,9 @@ class CartaoTipoIngresso extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  onPressed:
-                      quantidade < tipoIngresso.quantidadeDisponivel
-                          ? aoAumentar
-                          : null,
+                  onPressed: quantidade < tipoIngresso.quantidadeDisponivel
+                      ? aoAumentar
+                      : null,
                   icon: const Icon(Icons.add_circle_outline),
                   color: Theme.of(context).colorScheme.primary,
                 ),
@@ -84,4 +83,3 @@ class CartaoTipoIngresso extends StatelessWidget {
     );
   }
 }
- 

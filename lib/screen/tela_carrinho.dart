@@ -59,7 +59,7 @@ class _TelaCarrinhoState extends State<TelaCarrinho> {
       final pedido = await _ordersService.createOrder(items: items);
       await _ordersService.payOrder(pedido.id);
 
-      if (!mounted) return;
+      if (!context.mounted) return;
 
       widget.aoLimparCarrinho();
 
@@ -87,7 +87,7 @@ class _TelaCarrinhoState extends State<TelaCarrinho> {
         ),
       );
     } catch (e) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() => _carregando = false);
 
       ScaffoldMessenger.of(

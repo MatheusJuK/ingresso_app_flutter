@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:ingresso_app_flutter/screen/tela_login.dart';
+import 'package:ingresso_app_flutter/routes/app_routes.dart';
 import 'package:ingresso_app_flutter/services/app_preferences_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -50,7 +50,8 @@ class IngressosApp extends StatelessWidget {
           theme: _buildTheme(Brightness.light),
           darkTheme: _buildTheme(Brightness.dark),
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: const TelaLogin(),
+          initialRoute: AppRoutes.login,
+          onGenerateRoute: AppRoutes.onGenerateRoute,
         );
       },
     );

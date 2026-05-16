@@ -4,7 +4,7 @@ class Pedido {
   final String status;
   final double valorTotal;
   final DateTime criadoEm;
- 
+
   Pedido({
     required this.id,
     required this.usuarioId,
@@ -13,4 +13,3 @@ class Pedido {
     required this.criadoEm,
   });
 }
- 

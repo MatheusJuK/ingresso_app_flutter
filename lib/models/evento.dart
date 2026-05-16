@@ -7,7 +7,7 @@ class Evento {
   final String status;
   final String local;
   final String organizadorId;
- 
+
   Evento({
     required this.id,
     required this.titulo,
@@ -19,4 +19,3 @@ class Evento {
     required this.organizadorId,
   });
 }
- 

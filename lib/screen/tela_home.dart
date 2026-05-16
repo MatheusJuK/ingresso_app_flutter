@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ingresso_app_flutter/core/api_client.dart';
 import 'package:ingresso_app_flutter/models/api_response.dart';
+import 'package:ingresso_app_flutter/routes/app_routes.dart';
 import 'package:ingresso_app_flutter/services/events_service.dart';
 import '../models/item_carrinho.dart';
 import '../models/usuario.dart';
 import '../models/evento.dart';
 import '../widgets/cartao_evento.dart';
-import 'tela_detalhe_evento.dart';
 
 class TelaHome extends StatefulWidget {
   final Usuario usuarioLogado;
@@ -98,15 +98,14 @@ class _TelaHomeState extends State<TelaHome> {
               return CartaoEvento(
                 evento: eventoLocal,
                 aoClicar: () {
-                  Navigator.push(
+                  Navigator.pushNamed(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => TelaDetalheEvento(
-                        eventoId: evento.id,
-                        evento: eventoLocal,
-                        carrinho: widget.carrinho,
-                        aoAdicionarAoCarrinho: widget.aoAdicionarAoCarrinho,
-                      ),
+                    AppRoutes.detalheEvento,
+                    arguments: DetalheEventoRouteArgs(
+                      eventoId: evento.id,
+                      evento: eventoLocal,
+                      carrinho: widget.carrinho,
+                      aoAdicionarAoCarrinho: widget.aoAdicionarAoCarrinho,
                     ),
                   );
                 },

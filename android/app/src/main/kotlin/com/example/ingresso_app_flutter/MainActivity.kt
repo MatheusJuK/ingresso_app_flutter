@@ -1,4 +1,4 @@
-package com.example.ingresso_app_flutter
+package com.matheus.ingressosapp
 
 import io.flutter.embedding.android.FlutterActivity
 
